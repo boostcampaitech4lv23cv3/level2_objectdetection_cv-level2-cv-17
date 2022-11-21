@@ -1,0 +1,17 @@
+{
+    "recommendations": [
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+        "kevinrose.vsc-python-indent",
+        "mhutchie.git-graph",
+        "ms-ceintl.vscode-language-pack-ko",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-vsliveshare.vsliveshare",
+        "seatonjiang.gitmoji-vscode",
+        "visualstudioexptteam.intellicode-api-usage-examples",
+        "visualstudioexptteam.vscodeintellicode",
+    ]
+}
