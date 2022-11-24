@@ -50,18 +50,24 @@ data = dict(
     samples_per_gpu=4,
     workers_per_gpu=2,
     train=dict(
-        classes=classes, 
-        type=dataset_type, 
-        ann_file=data_root + "train.json", 
-        img_prefix=data_root + "train/", 
-        pipeline=train_pipeline
+        classes=classes,
+        type=dataset_type,
+        ann_file=data_root + "train.json",
+        img_prefix=data_root,
+        pipeline=train_pipeline,
+    ),
+    val=dict(
+        type=dataset_type,
+        ann_file=data_root + "val.json",
+        img_prefix=data_root,
+        pipeline=test_pipeline,
     ),
     test=dict(
-        classes=classes, 
-        type=dataset_type, 
-        ann_file=data_root + "test.json", 
-        img_prefix=data_root + "test/", 
-        pipeline=test_pipeline
+        classes=classes,
+        type=dataset_type,
+        ann_file=data_root + "test.json",
+        img_prefix=data_root,
+        pipeline=test_pipeline,
     ),
 )
 
