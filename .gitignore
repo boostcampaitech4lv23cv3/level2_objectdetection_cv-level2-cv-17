@@ -162,4 +162,5 @@ cython_debug/
 # Weights & Biases
 # https://github.com/wandb/examples/blob/master/.gitignore
 wandb/
+artifacts/
 work_dirs/
