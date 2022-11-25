@@ -5,25 +5,25 @@ import os
 import os.path as osp
 import time
 import warnings
+from datetime import datetime
 
 import mmcv
+import pytz
 import torch
 import torch.distributed as dist
 from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist
 from mmcv.utils import get_git_hash
+
 from mmdet import __version__
 from mmdet.apis import init_random_seed, set_random_seed, train_detector
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
-from mmdet.utils import (
-    collect_env,
-    get_device,
-    get_root_logger,
-    replace_cfg_vals,
-    setup_multi_processes,
-    update_data_root,
-)
+from mmdet.utils import (collect_env, get_device, get_root_logger,
+                         replace_cfg_vals, setup_multi_processes,
+                         update_data_root)
+
+KST_TZ = pytz.timezone("Asia/Seoul")
 
 
 def parse_args():
@@ -249,6 +249,22 @@ def main():
         )
     # add an attribute for visualization convenience
     model.CLASSES = datasets[0].CLASSES
+
+    # set config on WandbLoggerHook
+    wandb_hook_index = next(
+        (
+            i
+            for i, hook in enumerate(cfg.log_config.hooks)
+            if hook.type == "MMDetWandbHook"
+        ),
+        None,
+    )
+    if wandb_hook_index:
+        wandb_hook = cfg.log_config.hooks[wandb_hook_index]
+        name = osp.basename(args.config).replace("_", " ").replace(".py", "")
+        name = datetime.now(KST_TZ).strftime("%m/%d %H:%M ") + name
+        wandb_hook.init_kwargs.name = name
+
     train_detector(
         model,
         datasets,
