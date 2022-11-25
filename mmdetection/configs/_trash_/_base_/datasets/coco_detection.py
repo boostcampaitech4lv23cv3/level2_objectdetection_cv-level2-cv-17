@@ -57,6 +57,7 @@ data = dict(
         pipeline=train_pipeline,
     ),
     val=dict(
+        classes=classes,
         type=dataset_type,
         ann_file=data_root + "val.json",
         img_prefix=data_root,
