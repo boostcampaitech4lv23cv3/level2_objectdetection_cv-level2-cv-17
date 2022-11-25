@@ -204,6 +204,9 @@ def main():
     log_file = osp.join(cfg.work_dir, f"{timestamp}.log")
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
+    # set num_classes
+    cfg.model.roi_head.bbox_head.num_classes = len(cfg.classes)
+    
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged
     meta = dict()
