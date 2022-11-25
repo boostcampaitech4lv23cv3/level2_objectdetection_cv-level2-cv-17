@@ -2,9 +2,9 @@
 import argparse
 import os
 import os.path as osp
-from pathlib import Path
 import time
 import warnings
+from pathlib import Path
 
 import mmcv
 import pandas as pd
@@ -316,20 +316,7 @@ def main():
         image_info = coco.loadImgs(coco.getImgIds(imgIds=i))[0]
         for j in range(class_num):
             for o in out[j]:
-                prediction_string += (
-                    str(j)
-                    + " "
-                    + str(o[4])
-                    + " "
-                    + str(o[0])
-                    + " "
-                    + str(o[1])
-                    + " "
-                    + str(o[2])
-                    + " "
-                    + str(o[3])
-                    + " "
-                )
+                prediction_string += f"{j} {o[4]} {o[0]} {o[1]} {o[2]} {o[3]} "
 
         file_names.append(image_info["file_name"])
         prediction_strings.append(prediction_string)
@@ -337,8 +324,9 @@ def main():
     submission = pd.DataFrame()
     submission["image_id"] = file_names
     submission["PredictionString"] = prediction_strings
-    submission.to_csv(os.path.join(cfg.work_dir, f"submission_latest.csv"), index=None)
-    submission.head()
+
+    csv_filepath = checkpoint_path.parent / checkpoint_path.stem / f"submission.csv"
+    submission.to_csv(str(csv_filepath), index=None)
 
 
 if __name__ == "__main__":
