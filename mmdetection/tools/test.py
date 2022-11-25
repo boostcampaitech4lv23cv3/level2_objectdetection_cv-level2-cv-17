@@ -2,6 +2,7 @@
 import argparse
 import os
 import os.path as osp
+from pathlib import Path
 import time
 import warnings
 
@@ -70,9 +71,6 @@ def parse_args():
     )
     parser.add_argument("--show", action="store_true", help="show results")
     parser.add_argument(
-        "--show-dir", help="directory where painted images will be saved"
-    )
-    parser.add_argument(
         "--show-score-thr",
         type=float,
         default=0.3,
@@ -139,10 +137,10 @@ def parse_args():
 def main():
     args = parse_args()
 
-    assert args.out or args.eval or args.format_only or args.show or args.show_dir, (
+    assert args.out or args.eval or args.format_only or args.show, (
         "Please specify at least one operation (save/eval/format/show the "
         'results / save the results) with the argument "--out", "--eval"'
-        ', "--format-only", "--show" or "--show-dir"'
+        ', "--format-only", "--show"'
     )
 
     if args.eval and args.format_only:
@@ -233,6 +231,12 @@ def main():
         timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
         json_file = osp.join(args.work_dir, f"eval_{timestamp}.json")
 
+    # create directory where painted images will be saved
+    checkpoint_path = Path(args.checkpoint)
+    show_dir_path = checkpoint_path.parent / checkpoint_path.stem / "show_dir"
+    show_dir_path.mkdir(exist_ok=True, parents=True)
+    show_dir = str(show_dir_path)
+
     # build the dataloader
     dataset = build_dataset(cfg.data.test)
     data_loader = build_dataloader(dataset, **test_loader_cfg)
@@ -256,7 +260,7 @@ def main():
     if not distributed:
         model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
         outputs = single_gpu_test(
-            model, data_loader, args.show, args.show_dir, args.show_score_thr
+            model, data_loader, args.show, show_dir, args.show_score_thr
         )
     else:
         model = build_ddp(
