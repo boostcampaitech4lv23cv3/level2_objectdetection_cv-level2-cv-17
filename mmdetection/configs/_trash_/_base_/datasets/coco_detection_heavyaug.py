@@ -38,6 +38,13 @@ albu_train_transforms = [
         p=0.2,
     ),
     dict(
+        # 입체감을 주며 더욱 선명해지는 효과
+        type="Emboss",
+        alpha=[0.2, 0.5],
+        strength=[0.2, 0.7],
+        p=0.5,
+    ),
+    dict(
         type="OneOf",
         transforms=[
             dict(
@@ -58,7 +65,7 @@ albu_train_transforms = [
         p=0.1,
     ),
     dict(type="JpegCompression", quality_lower=85, quality_upper=95, p=0.2),
-    dict(type="ChannelShuffle", p=0.1),
+    # dict(type="ChannelShuffle", p=0.1),
     dict(
         type="OneOf",
         transforms=[
@@ -72,6 +79,16 @@ train_pipeline = [
     dict(type="LoadImageFromFile"),
     dict(type="LoadAnnotations", with_bbox=True, with_mask=False),
     dict(type="Resize", img_scale=img_scale, keep_ratio=True),
+    # dict(  # multi-scale
+    #     type="Resize",
+    #     img_scale=[
+    #         (1024, 1024),
+    #         (512, 512),
+    #         (256, 256),
+    #     ],
+    #     multiscale_mode="value",
+    #     keep_ratio=True,
+    # ),
     dict(type="Pad", size_divisor=32),
     dict(
         type="Albu",
@@ -87,14 +104,6 @@ train_pipeline = [
         update_pad_shape=False,
         skip_img_without_anno=True,
     ),
-    # dict(
-    #     # multi-scale
-    #     type="Resize",
-    #     img_scale=[(1024, 1024)],
-    #     multiscale_mode="range",
-    #     ratio_range=(0.5, 1.5),
-    #     keep_ratio=True,
-    # ),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
@@ -137,14 +146,14 @@ data = dict(
     train=dict(
         classes=classes,
         type=dataset_type,
-        ann_file=data_root + "train_groupk_0.json",
+        ann_file=data_root + "train_groupk_1.json",
         img_prefix=data_root,
         pipeline=train_pipeline,
     ),
     val=dict(
         classes=classes,
         type=dataset_type,
-        ann_file=data_root + "val_groupk_0.json",
+        ann_file=data_root + "val_groupk_1.json",
         img_prefix=data_root,
         pipeline=test_pipeline,
     ),
