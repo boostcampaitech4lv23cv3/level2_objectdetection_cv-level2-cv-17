@@ -88,7 +88,7 @@ model = dict(
                     type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0
                 ),
                 reg_decoded_bbox=True,
-                loss_bbox=dict(type="CIoULoss", loss_weight=10.0),
+                loss_bbox=dict(type="DIoULoss", loss_weight=10.0),
             ),
             dict(
                 type="Shared2FCBBoxHead",
