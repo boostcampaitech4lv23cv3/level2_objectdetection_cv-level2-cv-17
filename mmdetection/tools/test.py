@@ -7,6 +7,7 @@ import warnings
 from pathlib import Path
 
 import mmcv
+import mmcv.runner.hooks
 import pandas as pd
 import torch
 from mmcv import Config, DictAction
@@ -25,6 +26,7 @@ from mmdet.utils import (
     update_data_root,
 )
 from pycocotools.coco import COCO
+from rich import print
 
 
 def parse_args():
@@ -66,6 +68,7 @@ def parse_args():
         "--eval",
         type=str,
         nargs="+",
+        default="bbox",
         help='evaluation metrics, which depends on the dataset, e.g., "bbox",'
         ' "segm", "proposal" for COCO, and "mAP", "recall" for PASCAL VOC',
     )
@@ -101,6 +104,8 @@ def parse_args():
         "--options",
         nargs="+",
         action=DictAction,
+        # https://mmdetection.readthedocs.io/en/latest/useful_tools.html#error-analysis
+        # default="jsonfile_prefix=./results",
         help="custom options for evaluation, the key-value pair in xxx=yyy "
         "format will be kwargs for dataset.evaluate() function (deprecate), "
         "change to --eval-options instead.",
@@ -131,11 +136,60 @@ def parse_args():
     if args.options:
         warnings.warn("--options is deprecated in favor of --eval-options")
         args.eval_options = args.options
+
     return args
 
 
 def main():
     args = parse_args()
+
+    print(args)
+    print(args.eval_options)
+    # create directory where painted images will be saved
+    checkpoint_filepath = Path(args.checkpoint)
+    checkpoint_path = checkpoint_filepath.parent / checkpoint_filepath.stem
+    show_dir_path = checkpoint_path / "show_dir"
+    show_dir_path.mkdir(exist_ok=True, parents=True)
+    show_dir = str(show_dir_path)
+
+    # set `out` arguments
+    if args.out is None:
+        out_path = checkpoint_path / "out.pkl"
+        args.out = str(out_path)
+        # mmcv.fileio.io.py
+        # file_handlers = {
+        #     'json': JsonHandler(),
+        #     'yaml': YamlHandler(),
+        #     'yml': YamlHandler(),
+        #     'pickle': PickleHandler(),
+        #     'pkl': PickleHandler()
+        # }
+
+    # set `work_dir` arguments
+    if args.work_dir is None:
+        work_dir = checkpoint_path / "work_dir"
+        work_dir.mkdir(parents=True, exist_ok=True)
+        args.work_dir = str(work_dir)
+
+    # set `eval_options`
+    # --options "classwise=True"
+    # --options "txtfile_prefix=./mask_rcnn_cityscapes_test_results"
+    # --options "jsonfile_prefix=./mask_rcnn_test-dev_results"
+    # --options "jsonfile_prefix=./results"
+    prefix = str(checkpoint_path / "results")
+    if args.eval_options is None:
+        args.eval_options = {
+            "jsonfile_prefix": prefix,
+            # 'txtfile_prefix': prefix,
+            # 'classwise': True,
+            # Support classwise evaluation in CocoPanopticDataset (#5896)
+            # 'iou_thrs': [0.1, 0.2],
+        }
+    if isinstance(args.eval_options, dict):
+        if "jsonfile_prefix" not in args.eval_options:
+            args.eval_options["jsonfile_prefix"] = prefix
+        # if 'txtfile_prefix' not in args.eval_options:
+        #     args.eval_options['txtfile_prefix'] = prefix
 
     assert args.out or args.eval or args.format_only or args.show, (
         "Please specify at least one operation (save/eval/format/show the "
@@ -231,12 +285,6 @@ def main():
         timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
         json_file = osp.join(args.work_dir, f"eval_{timestamp}.json")
 
-    # create directory where painted images will be saved
-    checkpoint_path = Path(args.checkpoint)
-    show_dir_path = checkpoint_path.parent / checkpoint_path.stem / "show_dir"
-    show_dir_path.mkdir(exist_ok=True, parents=True)
-    show_dir = str(show_dir_path)
-
     # build the dataloader
     dataset = build_dataset(cfg.data.test)
     data_loader = build_dataloader(dataset, **test_loader_cfg)
@@ -325,7 +373,9 @@ def main():
     submission["image_id"] = file_names
     submission["PredictionString"] = prediction_strings
 
-    csv_filepath = checkpoint_path.parent / checkpoint_path.stem / f"submission.csv"
+    csv_filepath = (
+        checkpoint_filepath.parent / checkpoint_filepath.stem / f"submission.csv"
+    )
     submission.to_csv(str(csv_filepath), index=None)
 
 

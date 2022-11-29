@@ -52,14 +52,75 @@ data = dict(
     train=dict(
         classes=classes,
         type=dataset_type,
-        ann_file=data_root + "train.json",
+        ann_file=data_root + "train_2022_0.8.json",
         img_prefix=data_root,
         pipeline=train_pipeline,
     ),
+    # train=dict(
+    #     type='RepeatDataset',
+    #     times=2,
+    #     dataset=dict(
+    #         classes=classes,
+    #         type=dataset_type,
+    #         ann_file=data_root + "train_2022_0.8.json",
+    #         img_prefix=data_root,
+    #         pipeline=train_pipeline
+    #     )
+    # ),
+    # cityscapes_detection.py
+    # train=dict(
+    #     type='RepeatDataset',
+    #     times=8,
+    #     dataset=dict(
+    #         type=dataset_type,
+    #         ann_file=data_root +
+    #         'annotations/instancesonly_filtered_gtFine_train.json',
+    #         img_prefix=data_root + 'leftImg8bit/train/',
+    #         pipeline=train_pipeline)),
+    # lvis_v1_instance.py
+    # train=dict(
+    #     _delete_=True,
+    #     type='ClassBalancedDataset',
+    #     oversample_thr=1e-3,
+    #     dataset=dict(
+    #         type=dataset_type,
+    #         ann_file=data_root + 'annotations/lvis_v1_train.json',
+    #         img_prefix=data_root)),
+    # voc0712.py
+    # train=dict(
+    #     type='RepeatDataset',
+    #     times=3,
+    #     dataset=dict(
+    #         type=dataset_type,
+    #         ann_file=[
+    #             data_root + 'VOC2007/ImageSets/Main/trainval.txt',
+    #             data_root + 'VOC2012/ImageSets/Main/trainval.txt'
+    #         ],
+    #         img_prefix=[data_root + 'VOC2007/', data_root + 'VOC2012/'],
+    #         pipeline=train_pipeline)),
+    # wider_face.py
+    # train=dict(
+    #     type='RepeatDataset',
+    #     times=2,
+    #     dataset=dict(
+    #         type=dataset_type,
+    #         ann_file=data_root + 'train.txt',
+    #         img_prefix=data_root + 'WIDER_train/',
+    #         min_size=17,
+    #         pipeline=train_pipeline)),
+    # openimages_detection.py
+    # train=dict(
+    #     type=dataset_type,
+    #     ann_file=data_root + 'annotations/oidv6-train-annotations-bbox.csv',
+    #     img_prefix=data_root + 'OpenImages/train/',
+    #     label_file=data_root + 'annotations/class-descriptions-boxable.csv',
+    #     hierarchy_file=data_root +
+    #     'annotations/bbox_labels_600_hierarchy.json',
+    #     pipeline=train_pipeline),
     val=dict(
         classes=classes,
         type=dataset_type,
-        ann_file=data_root + "val.json",
+        ann_file=data_root + "val_2022_0.2.json",
         img_prefix=data_root,
         pipeline=test_pipeline,
     ),

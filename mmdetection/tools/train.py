@@ -14,14 +14,18 @@ import torch.distributed as dist
 from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist
 from mmcv.utils import get_git_hash
-
 from mmdet import __version__
 from mmdet.apis import init_random_seed, set_random_seed, train_detector
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
-from mmdet.utils import (collect_env, get_device, get_root_logger,
-                         replace_cfg_vals, setup_multi_processes,
-                         update_data_root)
+from mmdet.utils import (
+    collect_env,
+    get_device,
+    get_root_logger,
+    replace_cfg_vals,
+    setup_multi_processes,
+    update_data_root,
+)
 
 KST_TZ = pytz.timezone("Asia/Seoul")
 
@@ -207,7 +211,7 @@ def main():
     # set num_classes
     for bbox_head in cfg.model.roi_head.bbox_head:
         bbox_head.num_classes = len(cfg.classes)
-    
+
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged
     meta = dict()

@@ -1,0 +1,87 @@
+{
+    // IntelliSense를 사용하여 가능한 특성에 대해 알아보세요.
+    // 기존 특성에 대한 설명을 보려면 가리킵니다.
+    // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: 현재 파일",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "train _trash_/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py",
+            "type": "python",
+            "request": "launch",
+            "program": "mmdetection/tools/train.py",
+            "args": [
+                "mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "test faster_rcnn_r50_fpn_2x_coco options jsonfile_prefix",
+            "type": "python",
+            "request": "launch",
+            "program": "mmdetection/tools/test.py",
+            "args": [
+                "mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py",
+                "work_dirs/faster_rcnn_r50_fpn_2x_coco/latest.pth",
+                "--eval bbox",
+                "--options \"jsonfile_prefix=./results\""
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "test faster_rcnn_r50_fpn_2x_coco --eval-options jsonfile_prefix",
+            "type": "python",
+            "request": "launch",
+            "program": "mmdetection/tools/test.py",
+            "args": [
+                "mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py",
+                "work_dirs/faster_rcnn_r50_fpn_2x_coco/latest.pth",
+                "--eval",
+                "bbox",
+                "--eval-options",
+                "jsonfile_prefix=./results",
+                "txtfile_prefix=./results",
+                "classwise=True",
+                "iou_thrs=0.1,0.2"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "train _trash_/faster_rcnn/faster_rcnn_r50_fpn_albu_2x_coco.py",
+            "type": "python",
+            "request": "launch",
+            "program": "mmdetection/tools/train.py",
+            "args": [
+                "mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_albu_2x_coco.py"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "confusion_matrix",
+            "type": "python",
+            "request": "launch",
+            "program": "confusion_matrix.py",
+            "args": [
+                "--gt_json",
+                "/opt/ml/dataset/test.json",
+                "--pred_csv",
+                "work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/submission.csv",
+                "--file_name",
+                "work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/confusion_matrix.png",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+    ]
+}

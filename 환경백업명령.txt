@@ -1,0 +1,4 @@
+conda list --explicit > detection-00.txt
+conda env export > detection-00.yml
+pip freeze > detection-00-pip-freeze.txt
+conda list --revisions > detection-00-revisions.txt

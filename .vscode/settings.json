@@ -20,5 +20,24 @@
         "mmdetection/mmdet/*/**": false
     },
     "python.formatting.provider": "black",
-    "terminal.integrated.scrollback": 100000
+    "black-formatter.args": [
+        "--config pyproject.toml"
+    ],
+    "python.sortImports.args": [
+        "--atomic",
+        "--color",
+        "--float-to-top",
+        "--profile black",
+        "--py 37",
+    ],
+    "editor.inlineSuggest.enabled": true,
+    "terminal.integrated.scrollback": 100000,
+    "cSpell.words": [
+        "cudnn",
+        "mmcv",
+        "mmdet",
+        "pretrained",
+        "segm",
+        "slurm"
+    ]
 }

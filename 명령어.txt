@@ -1,0 +1,36 @@
+train 돌리고 test 돌리고 submission까지 정상동작하면 test.py 수정사항 올리기
+python mmdetection/tools/train.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py
+
+python mmdetection/tools/test.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py work_dirs/faster_rcnn_r50_fpn_2x_coco/latest.pth --eval bbox
+
+python mmdetection/tools/test.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py work_dirs/faster_rcnn_r50_fpn_2x_coco/latest.pth --eval bbox --options "jsonfile_prefix=./results"
+python mmdetection/tools/test.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py work_dirs/faster_rcnn_r50_fpn_2x_coco/latest.pth --eval bbox --eval-options "jsonfile_prefix=./results" classwise=True iou_thrs=0.1,0.2
+
+
+--eval-options iou_thrs=0.1,0.2
+--options "classwise=True"
+--options "txtfile_prefix=./mask_rcnn_cityscapes_test_results"
+--options "jsonfile_prefix=./mask_rcnn_test-dev_results"
+--options "jsonfile_prefix=./results"
+
+python mmdetection/tools/train.py mmdetection/configs/_trash_/yolox/yolox_m_8x8_300e_coco.py
+python mmdetection/tools/test.py mmdetection/configs/_trash_/yolox/yolox_m_8x8_300e_coco.py work_dirs/yolox_m_8x8_300e_coco/latest.pth --eval bbox
+
+python mmdetection/tools/train.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_albu_2x_coco.py
+python mmdetection/tools/test.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_albu_2x_coco.py work_dirs/faster_rcnn_r50_fpn_albu_2x_coco/latest.pth --eval bbox
+
+
+python mmdetection/tools/analysis_tools/analyze_results.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/out.pkl work_dirs/faster_rcnn_r50_fpn_2x_coco/show_dir_test
+python mmdetection/tools/analysis_tools/analyze_results.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/out.pkl work_dirs/faster_rcnn_r50_fpn_2x_coco/show_dir_test --overlay-gt-pred
+--cfg-options
+
+
+
+python confusion_matrix.py --submission-csv work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/submission.csv
+
+python mmdetection/tools/analysis_tools/confusion_matrix.py mmdetection/configs/_trash_/faster_rcnn/faster_rcnn_r50_fpn_2x_coco.py work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/out.pkl work_dirs/faster_rcnn_r50_fpn_2x_coco/latest
+
+
+
+python mmdetection/tools/train.py mmdetection/configs/_trash_/swin/cascade_rcnn_swinL_aug.py
+python mmdetection/tools/train.py mmdetection/configs/_trash_/_base_/models/swin/cascade_rcnn_swinL_aug.py
