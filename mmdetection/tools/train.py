@@ -6,6 +6,7 @@ import os.path as osp
 import time
 import warnings
 from datetime import datetime
+from pathlib import Path
 
 import mmcv
 import pytz
@@ -14,14 +15,18 @@ import torch.distributed as dist
 from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist
 from mmcv.utils import get_git_hash
-
 from mmdet import __version__
 from mmdet.apis import init_random_seed, set_random_seed, train_detector
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
-from mmdet.utils import (collect_env, get_device, get_root_logger,
-                         replace_cfg_vals, setup_multi_processes,
-                         update_data_root)
+from mmdet.utils import (
+    collect_env,
+    get_device,
+    get_root_logger,
+    replace_cfg_vals,
+    setup_multi_processes,
+    update_data_root,
+)
 
 KST_TZ = pytz.timezone("Asia/Seoul")
 
@@ -34,7 +39,20 @@ def parse_args():
     parser.add_argument(
         "--auto-resume",
         action="store_true",
+        default=True,
         help="resume from the latest checkpoint automatically",
+    )
+    parser.add_argument(
+        "--resume-wandb-id",
+        type=str,
+        default=None,
+        help="wandb run id to resume on wandb",
+    )
+    parser.add_argument(
+        "--resume-wandb-type",
+        type=str,
+        default="allow",
+        help='wandb resuming behavior. Options: "allow", "must", "never", "auto" or None',
     )
     parser.add_argument(
         "--no-validate",
@@ -114,6 +132,9 @@ def parse_args():
         warnings.warn("--options is deprecated in favor of --cfg-options")
         args.cfg_options = args.options
 
+    if args.resume_from and not args.resume_wandb_id:
+        raise ValueError("--resume-from should be with --resume-wandb-id")
+
     return args
 
 
@@ -164,9 +185,47 @@ def main():
             "./work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
 
+    # set config on WandbLoggerHook
+    wandb_hook_index = next(
+        (
+            i
+            for i, hook in enumerate(cfg.log_config.hooks)
+            if hook.type == "MMDetWandbHook"
+        ),
+        None,
+    )
+    if wandb_hook_index:
+        wandb_hook = cfg.log_config.hooks[wandb_hook_index]
+        name = osp.basename(args.config).replace("_", " ").replace(".py", "")
+        name = datetime.now(KST_TZ).strftime("%m/%d %H:%M ") + name
+        wandb_hook.init_kwargs.name = name
+
+    if args.resume_from is None and os.path.exists(cfg.work_dir):
+        work_dir_path = Path(cfg.work_dir)
+        pth_files = list(work_dir_path.glob("epoch_*.pth"))
+        stems = [int(file.stem.replace("epoch_", "")) for file in pth_files]
+        print("stems: ", stems)
+        try:
+            max_stem = max(stems)
+            max_epoch = work_dir_path / f"epoch_{max_stem}.pth"
+            args.resume_from = str(max_epoch)
+        except ValueError as err:
+            # ValueError: max() arg is an empty sequence
+            print(err)
+            args.resume_from = None
+
+        # work_dir이 있으면 자동으로 재시작
+
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
     cfg.auto_resume = args.auto_resume
+
+    if args.resume_wandb_id is not None and wandb_hook_index:
+        wandb_hook = cfg.log_config.hooks[wandb_hook_index]
+        wandb_hook.init_kwargs.resume = "allow"
+        wandb_hook.init_kwargs.id = args.resume_wandb_id
+        # wandb_hook.init_kwargs.name = None
+
     if args.gpus is not None:
         cfg.gpu_ids = range(1)
         warnings.warn(
@@ -207,7 +266,7 @@ def main():
     # set num_classes
     for bbox_head in cfg.model.roi_head.bbox_head:
         bbox_head.num_classes = len(cfg.classes)
-    
+
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged
     meta = dict()
@@ -253,21 +312,6 @@ def main():
         )
     # add an attribute for visualization convenience
     model.CLASSES = datasets[0].CLASSES
-
-    # set config on WandbLoggerHook
-    wandb_hook_index = next(
-        (
-            i
-            for i, hook in enumerate(cfg.log_config.hooks)
-            if hook.type == "MMDetWandbHook"
-        ),
-        None,
-    )
-    if wandb_hook_index:
-        wandb_hook = cfg.log_config.hooks[wandb_hook_index]
-        name = osp.basename(args.config).replace("_", " ").replace(".py", "")
-        name = datetime.now(KST_TZ).strftime("%m/%d %H:%M ") + name
-        wandb_hook.init_kwargs.name = name
 
     train_detector(
         model,
