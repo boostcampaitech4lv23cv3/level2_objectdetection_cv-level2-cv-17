@@ -1,0 +1,5 @@
+work_dirs/cascade_rcnn_swinL_aug0/latest/submission.csv
+work_dirs/cascade_rcnn_swinL_aug1/latest/submission.csv
+work_dirs/cascade_rcnn_swinL_aug2/latest/submission.csv
+work_dirs/cascade_rcnn_swinL_aug3/latest/submission.csv
+work_dirs/cascade_rcnn_swinL_aug4/latest/submission.csv
