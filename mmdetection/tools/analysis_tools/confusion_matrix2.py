@@ -3,7 +3,7 @@ python mmdetection/tools/analysis_tools/confusion_matrix2.py --submission-csv wo
 --> work_dirs/faster_rcnn_r50_fpn_2x_coco/latest/confusion_matrix.png 경로로 이미지가 생성됨
 """
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Union
 
@@ -62,8 +62,8 @@ def box_iou_calc(boxes1, boxes2):
 
 @dataclass
 class ConfusionMatrix:
-    classes: list = CLASSES
-    num_classes: int = len(classes)
+    classes: list = field(default_factory=lambda: CLASSES)
+    num_classes: int = len(CLASSES)
     CONF_THRESHOLD: float = 0.3
     IOU_THRESHOLD: float = 0.5
     matrix: np.ndarray = np.zeros((num_classes + 1, num_classes + 1))
