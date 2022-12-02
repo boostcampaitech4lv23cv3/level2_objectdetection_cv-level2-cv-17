@@ -7,16 +7,17 @@ log_config = dict(
         # dict(type='CheckpointHook'),
         # dict(type='TensorboardLoggerHook')
         # dict(type='MlflowLoggerHook'),
-        dict(type='MMDetWandbHook',
-             init_kwargs={
-                'project': 'object-detection',
-                'entity': 'boostcamp-ai-tech-4-cv-17',
-             },
-             interval=10,
-             log_checkpoint=True,
-             log_checkpoint_metadata=True,
-             num_eval_images=100,
-             bbox_score_thr=0.3
+        dict(
+            type="MMDetWandbHook",
+            init_kwargs={
+                "project": "object-detection",
+                "entity": "boostcamp-ai-tech-4-cv-17",
+            },
+            interval=10,
+            log_checkpoint=False,
+            log_checkpoint_metadata=True,
+            num_eval_images=100,
+            bbox_score_thr=0.3,
         ),
     ],
 )

@@ -52,14 +52,14 @@ data = dict(
     train=dict(
         classes=classes,
         type=dataset_type,
-        ann_file=data_root + "train.json",
+        ann_file=data_root + "train_rand_2022_0.8.json",
         img_prefix=data_root,
         pipeline=train_pipeline,
     ),
     val=dict(
         classes=classes,
         type=dataset_type,
-        ann_file=data_root + "val.json",
+        ann_file=data_root + "val_rand_2022_0.2.json",
         img_prefix=data_root,
         pipeline=test_pipeline,
     ),

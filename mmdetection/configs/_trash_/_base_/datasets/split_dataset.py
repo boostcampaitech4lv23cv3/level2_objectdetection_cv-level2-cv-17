@@ -120,7 +120,7 @@ def stratified_group_kfold(dataset_dir: str = TRAIN_JSON_FILE, save_dir: str = T
 
 
 if __name__ == "__main__":
-    random_split(TRAIN_JSON_FILE)
-    random_split(TRAIN_JSON_FILE, val_ratio=0.3)
+    # random_split(TRAIN_JSON_FILE)
+    # random_split(TRAIN_JSON_FILE, val_ratio=0.3)
 
-    # stratified_group_kfold(TRAIN_JSON_FILE, TOP_DIR)
+    stratified_group_kfold(TRAIN_JSON_FILE, TOP_DIR)
