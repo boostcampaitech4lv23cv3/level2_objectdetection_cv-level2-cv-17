@@ -11,20 +11,17 @@ import pandas as pd
 import torch
 from mmcv import Config, DictAction
 from mmcv.cnn import fuse_conv_bn
-from mmcv.runner import get_dist_info, init_dist, load_checkpoint, wrap_fp16_model
-from mmdet.apis import multi_gpu_test, single_gpu_test
-from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
-from mmdet.models import build_detector
-from mmdet.utils import (
-    build_ddp,
-    build_dp,
-    compat_cfg,
-    get_device,
-    replace_cfg_vals,
-    setup_multi_processes,
-    update_data_root,
-)
+from mmcv.runner import (get_dist_info, init_dist, load_checkpoint,
+                         wrap_fp16_model)
 from pycocotools.coco import COCO
+
+from mmdet.apis import multi_gpu_test, single_gpu_test
+from mmdet.datasets import (build_dataloader, build_dataset,
+                            replace_ImageToTensor)
+from mmdet.models import build_detector
+from mmdet.utils import (build_ddp, build_dp, compat_cfg, get_device,
+                         replace_cfg_vals, setup_multi_processes,
+                         update_data_root)
 
 
 def parse_args():
@@ -66,6 +63,7 @@ def parse_args():
         "--eval",
         type=str,
         nargs="+",
+        default="bbox",
         help='evaluation metrics, which depends on the dataset, e.g., "bbox",'
         ' "segm", "proposal" for COCO, and "mAP", "recall" for PASCAL VOC',
     )
@@ -136,6 +134,54 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    print(args)
+    print(args.eval_options)
+    # create directory where painted images will be saved
+    checkpoint_filepath = Path(args.checkpoint)
+    checkpoint_path = checkpoint_filepath.parent / checkpoint_filepath.stem
+    show_dir_path = checkpoint_path / "show_dir"
+    show_dir_path.mkdir(exist_ok=True, parents=True)
+    show_dir = str(show_dir_path)
+
+    # set `out` arguments
+    if args.out is None:
+        out_path = checkpoint_path / "out.pkl"
+        args.out = str(out_path)
+        # mmcv.fileio.io.py
+        # file_handlers = {
+        #     'json': JsonHandler(),
+        #     'yaml': YamlHandler(),
+        #     'yml': YamlHandler(),
+        #     'pickle': PickleHandler(),
+        #     'pkl': PickleHandler()
+        # }
+
+    # set `work_dir` arguments
+    if args.work_dir is None:
+        work_dir = checkpoint_path / "work_dir"
+        work_dir.mkdir(parents=True, exist_ok=True)
+        args.work_dir = str(work_dir)
+
+    # set `eval_options`
+    # --options "classwise=True"
+    # --options "txtfile_prefix=./mask_rcnn_cityscapes_test_results"
+    # --options "jsonfile_prefix=./mask_rcnn_test-dev_results"
+    # --options "jsonfile_prefix=./results"
+    prefix = str(checkpoint_path / "results")
+    if args.eval_options is None:
+        args.eval_options = {
+            "jsonfile_prefix": prefix,
+            # 'txtfile_prefix': prefix,
+            # 'classwise': True,
+            # Support classwise evaluation in CocoPanopticDataset (#5896)
+            # 'iou_thrs': [0.1, 0.2],
+        }
+    if isinstance(args.eval_options, dict):
+        if "jsonfile_prefix" not in args.eval_options:
+            args.eval_options["jsonfile_prefix"] = prefix
+        # if 'txtfile_prefix' not in args.eval_options:
+        #     args.eval_options['txtfile_prefix'] = prefix
 
     assert args.out or args.eval or args.format_only or args.show, (
         "Please specify at least one operation (save/eval/format/show the "
@@ -325,7 +371,9 @@ def main():
     submission["image_id"] = file_names
     submission["PredictionString"] = prediction_strings
 
-    csv_filepath = checkpoint_path.parent / checkpoint_path.stem / f"submission.csv"
+    csv_filepath = (
+        checkpoint_filepath.parent / checkpoint_filepath.stem / f"submission.csv"
+    )
     submission.to_csv(str(csv_filepath), index=None)
 
 
